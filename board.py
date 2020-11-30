@@ -65,7 +65,7 @@ class Board:
             print(" ".join(map(lambda v: " K" if v == UNKNOWN else " B" if v ==
                                FLAGGED else str(v).rjust(2), self.board[x])))
 
-    def solve_get_safe_cells(self):
+    def solve(self):
         env = Environment()
         env.load("minesweeper.clp")
         for i in range(self.n):
@@ -73,8 +73,8 @@ class Board:
             env.assert_string(f"(is-edge -1 {i})")
             env.assert_string(f"(is-edge {self.n} {i})")
             env.assert_string(f"(is-edge {i} {self.n})")
-        env.assert_string(f"(x-pos {' '.join(map(str, range(self.n)))})")
-        env.assert_string(f"(y-pos {' '.join(map(str, range(self.n)))})")
+        env.assert_string(f"(x-pos {' '.join(map(str, range(-1, self.n+1)))})")
+        env.assert_string(f"(y-pos {' '.join(map(str, range(-1, self.n+1)))})")
         for x in range(self.n):
             for y in range(self.n):
                 v = self.board[x][y]
@@ -83,10 +83,12 @@ class Board:
                     fact_name = "is-unknown"
                 elif (v == FLAGGED):
                     fact_name = "is-bomb"
+                else:
+                    env.assert_string(f"(is-open {x} {y})")
                 env.assert_string(f"({fact_name} {x} {y})")
-                env.assert_string(f"(is-open {x} {y})")
         env.run()
         safes = []
+        bombs = []
         for fact_str in env.facts():
             fact = re.findall(r"\((.*)\)", str(fact_str))[0].split(" ")
             if (len(fact) != 3):
@@ -96,5 +98,5 @@ class Board:
             if (fact_name == "is-safe"):
                 safes.append((x, y))
             elif (fact_name == "is-bomb"):
-                self.board[x][y] = FLAGGED
-        return safes
+                bombs.append((x, y))
+        return (safes, bombs)
