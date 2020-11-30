@@ -38,6 +38,11 @@ class Board:
             return False
         return self.secret[x][y] == FLAGGED
 
+    def secret_print(self):
+        for x in range(self.n):
+            print(" ".join(map(lambda v: " K" if v == UNKNOWN else " B" if v ==
+                               FLAGGED else str(v).rjust(2), self.secret[x])))
+
     def is_valid(self, x, y):
         return 0 <= x < self.n and 0 <= y < self.n
 
@@ -57,9 +62,10 @@ class Board:
 
     def print(self):
         for x in range(self.n):
-            print(str(self.board[x]))
+            print(" ".join(map(lambda v: " K" if v == UNKNOWN else " B" if v ==
+                               FLAGGED else str(v).rjust(2), self.board[x])))
 
-    def solve(self):
+    def solve_get_safe_cells(self):
         env = Environment()
         env.load("minesweeper.clp")
         for i in range(self.n):
@@ -67,12 +73,12 @@ class Board:
             env.assert_string(f"(is-edge -1 {i})")
             env.assert_string(f"(is-edge {self.n} {i})")
             env.assert_string(f"(is-edge {i} {self.n})")
-        env.assert_string(f"(x-pos {' '.join(range(self.n))})")
-        env.assert_string(f"(y-pos {' '.join(range(self.n))})")
+        env.assert_string(f"(x-pos {' '.join(map(str, range(self.n)))})")
+        env.assert_string(f"(y-pos {' '.join(map(str, range(self.n)))})")
         for x in range(self.n):
             for y in range(self.n):
                 v = self.board[x][y]
-                fact_name = "is-" + v
+                fact_name = "is-" + str(v)
                 if (v == UNKNOWN):
                     fact_name = "is-unknown"
                 elif (v == FLAGGED):
@@ -82,10 +88,11 @@ class Board:
         env.run()
         safes = []
         for fact_str in env.facts():
-            fact = re.findall(r"\((.*)\)", fact_str)[0].split(" ")
-            if (len(fact) <= 2):
+            fact = re.findall(r"\((.*)\)", str(fact_str))[0].split(" ")
+            if (len(fact) != 3):
                 continue
-            [fact_name, x, y, *_] = fact
+            [fact_name, x_str, y_str, *_] = fact
+            x, y = int(x_str), int(y_str)
             if (fact_name == "is-safe"):
                 safes.append((x, y))
             elif (fact_name == "is-bomb"):
