@@ -27,8 +27,8 @@ while len(safe_cells) > 0:
     if (len(valid_cells) == 0):
         print("Tidak ada safe-cell baru yang masih tertutup")
         break
-    board.print()
     (safe_cells, bomb_cells) = board.solve()
+    board.print()
     print("Safe cells:")
     for cell in safe_cells:
         print(cell)

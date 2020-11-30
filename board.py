@@ -1,5 +1,6 @@
 from clips.environment import Environment
 import re
+import utils
 
 # states
 UNKNOWN = -1
@@ -12,6 +13,9 @@ class Board:
         self.n = n
         self.init_secret(bombs)
         self.init_board()
+        self.env = Environment()
+        self.env.load("minesweeper.clp")
+        utils.add3x3rules(self.env)
 
     def init_secret(self, bombs):
         self.secret = [[UNKNOWN for _ in range(self.n)] for _ in range(self.n)]
@@ -66,8 +70,9 @@ class Board:
                                FLAGGED else str(v).rjust(2), self.board[x])))
 
     def solve(self):
-        env = Environment()
-        env.load("minesweeper.clp")
+        env = self.env
+        env.reset()
+        # print(list(env.rules()))
         for i in range(self.n):
             env.assert_string(f"(is-edge {i} -1)")
             env.assert_string(f"(is-edge -1 {i})")
@@ -81,8 +86,10 @@ class Board:
                 fact_name = "is-" + str(v)
                 if (v == UNKNOWN):
                     fact_name = "is-unknown"
+                    env.assert_string(f"(is-closed {x} {y})")
                 elif (v == FLAGGED):
                     fact_name = "is-bomb"
+                    env.assert_string(f"(is-closed {x} {y})")
                 else:
                     env.assert_string(f"(is-open {x} {y})")
                 env.assert_string(f"({fact_name} {x} {y})")
@@ -99,4 +106,5 @@ class Board:
                 safes.append((x, y))
             elif (fact_name == "is-bomb"):
                 bombs.append((x, y))
+                self.board[x][y] = FLAGGED
         return (safes, bombs)

@@ -13,61 +13,64 @@
     (assert (new-y-pos nil ?ypos nil))
 )
 
-(defrule check-1-1
-  (
-    or
-      (and
-        (new-x-pos $? ?x ?x1 ?x2 ?x3 $?)
-        (new-y-pos $? ?y ?y1 $?)
-      )
-      (and
-        (new-x-pos $? ?x3 ?x2 ?x1 ?x $?)
-        (new-y-pos $? ?y ?y1 $?)
-      )
-      (and
-        (new-x-pos $? ?x ?x1 ?x2 ?x3 $?)
-        (new-y-pos $? ?y1 ?y $?)
-      )
-      (and
-        (new-x-pos $? ?x3 ?x2 ?x1 ?x $?)
-        (new-y-pos $? ?y1 ?y $?)
-      )
-      (and
-        (new-y-pos $? ?x ?x1 ?x2 ?x3 $?)
-        (new-x-pos $? ?y ?y1 $?)
-      )
-      (and
-        (new-y-pos $? ?x3 ?x2 ?x1 ?x $?)
-        (new-x-pos $? ?y ?y1 $?)
-      )
-      (and
-        (new-y-pos $? ?x ?x1 ?x2 ?x3 $?)
-        (new-x-pos $? ?y1 ?y $?)
-      )
-      (and
-        (new-y-pos $? ?x3 ?x2 ?x1 ?x $?)
-        (new-x-pos $? ?y1 ?y $?)
-      )
-  )
-  (
-    or
-      (is-edge ?x ?y)
-      (is-open ?x ?y)
-  )
-  (
-    or
-      (is-edge ?x ?y1)
-      (is-open ?x ?y1)
-  )
-  (is-unknown ?x1 ?y)
-  (is-unknown ?x2 ?y)
-  (is-unknown ?x3 ?y)
-  (is-1 ?x1 ?y1)
-  (is-1 ?x2 ?y1)
-  (is-open ?x3 ?y1)
-=>
-  (assert (is-safe ?x3 ?y))
-)
+; (defrule check-1-1
+;   (
+;     or
+;       (and
+;         (new-x-pos $? ?x ?x1 ?x2 ?x3 $?)
+;         (new-y-pos $? ?y ?y1 $?)
+;       )
+;       (and
+;         (new-x-pos $? ?x3 ?x2 ?x1 ?x $?)
+;         (new-y-pos $? ?y ?y1 $?)
+;       )
+;       (and
+;         (new-x-pos $? ?x ?x1 ?x2 ?x3 $?)
+;         (new-y-pos $? ?y1 ?y $?)
+;       )
+;       (and
+;         (new-x-pos $? ?x3 ?x2 ?x1 ?x $?)
+;         (new-y-pos $? ?y1 ?y $?)
+;       )
+;       (and
+;         (new-y-pos $? ?x ?x1 ?x2 ?x3 $?)
+;         (new-x-pos $? ?y ?y1 $?)
+;       )
+;       (and
+;         (new-y-pos $? ?x3 ?x2 ?x1 ?x $?)
+;         (new-x-pos $? ?y ?y1 $?)
+;       )
+;       (and
+;         (new-y-pos $? ?x ?x1 ?x2 ?x3 $?)
+;         (new-x-pos $? ?y1 ?y $?)
+;       )
+;       (and
+;         (new-y-pos $? ?x3 ?x2 ?x1 ?x $?)
+;         (new-x-pos $? ?y1 ?y $?)
+;       )
+;   )
+;   (
+;     or
+;       (is-edge ?x ?y)
+;       (is-open ?x ?y)
+;       (is-safe ?x ?y)
+;   )
+;   (
+;     or
+;       (is-edge ?x ?y1)
+;       (is-open ?x ?y1)
+;       (is-safe ?x ?y1)
+;   )
+;   (is-closed ?x1 ?y)
+;   (is-closed ?x2 ?y)
+;   ?f <- (is-unknown ?x3 ?y)
+;   (is-1 ?x1 ?y1)
+;   (is-1 ?x2 ?y1)
+;   (is-open ?x3 ?y1)
+; =>
+;   (assert (is-safe ?x3 ?y))
+;   (retract ?f)
+; )
 
 ; =======================================================
 
@@ -109,70 +112,42 @@
   )
   (
     or
+      (is-closed ?x ?y)
       (is-edge ?x ?y)
       (is-open ?x ?y)
+      (is-safe ?x ?y)
   )
   (
     or
+      (is-closed ?x ?y1)
       (is-edge ?x ?y1)
       (is-open ?x ?y1)
+      (is-safe ?x ?y1)
   )
-  (is-unknown ?x1 ?y)
-  (is-unknown ?x2 ?y)
-  (is-unknown ?x3 ?y)
+  (is-closed ?x1 ?y)
+  (is-closed ?x2 ?y)
+  ?f <- (is-unknown ?x3 ?y)
   (is-1 ?x1 ?y1)
   (is-2 ?x2 ?y1)
   (is-open ?x3 ?y1)
 =>
   (assert (is-bomb ?x3 ?y))
+  (retract ?f)
 )
 
 ; =====================================
 
-; (defrule check-3x3-1-1
+; (defrule check-3x3-1
 ;   (new-x-pos $? ?xm1 ?x ?x1 $?)
 ;   (new-y-pos $? ?ym1 ?y ?y1 $?)
 ;   (is-1 ?x ?y)
-;   (is-open ?xm1 ?ym1)
-;   (is-open ?xm1 ?y1)
-;   (is-open ?x1 ?ym1)
-;   ; (is-open ?x1 ?y1)
+;   (
+;     or
+;       (is-unknown ?xm1 ?ym1)
+;       (is-unknown ?xm1 ?y1)
+;       (is-unknown ?x1 ?ym1)
+;       (is-unknown ?x1 ?y1)
+;   )
 ; =>
 ;   (assert (is-bomb ?x1 ?y1))
-; )
-
-; (defrule check-3x3-1-2
-;   (new-x-pos $? ?xm1 ?x ?x1 $?)
-;   (new-y-pos $? ?ym1 ?y ?y1 $?)
-;   (is-1 ?x ?y)
-;   (is-open ?xm1 ?ym1)
-;   (is-open ?xm1 ?y1)
-;   ; (is-open ?x1 ?ym1)
-;   (is-open ?x1 ?y1)
-; =>
-;   (assert (is-bomb ?x1 ?ym1))
-; )
-
-; (defrule check-3x3-1-3
-;   (new-x-pos $? ?xm1 ?x ?x1 $?)
-;   (new-y-pos $? ?ym1 ?y ?y1 $?)
-;   (is-1 ?x ?y)
-;   (is-open ?xm1 ?ym1)
-;   ; (is-open ?xm1 ?y1)
-;   (is-open ?x1 ?ym1)
-;   (is-open ?x1 ?y1)
-; =>
-;   (assert (is-bomb ?xm1 ?y1))
-; )
-
-; (defrule check-3x3-1-4
-;   (new-x-pos $? ?xm1 ?x ?x1 $?)
-;   (new-y-pos $? ?ym1 ?y ?y1 $?)
-;   (is-1 ?x ?y)
-;   ; (is-open ?xm1 ?ym1)
-;   (is-open ?xm1 ?y1)
-;   (is-open ?x1 ?ym1)
-;   (is-open ?x1 ?y1)
-; =>
-;   (assert (is-bomb ?xm1 ?ym1))
 ; )
