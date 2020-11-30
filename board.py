@@ -76,8 +76,11 @@ class Board:
 
     def secret_print(self):
         for x in range(self.n):
-            print(" ".join(map(lambda v: " K" if v == UNKNOWN else " B" if v ==
-                               FLAGGED else str(v).rjust(2), self.secret[x])))
+            for y in range(self.n):
+                v = self.secret[y][x]
+                print(
+                    f'{" K" if v == UNKNOWN else " B" if v == FLAGGED else str(v).rjust(2)} ', end="")
+            print()
 
     def is_valid(self, x, y):
         return 0 <= x < self.n and 0 <= y < self.n
@@ -98,8 +101,11 @@ class Board:
 
     def print(self):
         for x in range(self.n):
-            print(" ".join(map(lambda v: " K" if v == UNKNOWN else " B" if v ==
-                               FLAGGED else str(v).rjust(2), self.board[x])))
+            for y in range(self.n):
+                v = self.board[y][x]
+                print(
+                    f'{" K" if v == UNKNOWN else " B" if v == FLAGGED else str(v).rjust(2)} ', end="")
+            print()
 
     def solve(self):
         env = self.env
@@ -171,7 +177,6 @@ class Board:
         for nx, ny in self.gen_adj(x, y):
             if (self.board[nx][ny] == FLAGGED):
                 res += 1
-        print(x, y, res)
         return res
 
     def add3x3rules(self):
