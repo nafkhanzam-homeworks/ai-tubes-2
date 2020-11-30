@@ -1,6 +1,5 @@
 from clips.environment import Environment
 import re
-import utils
 
 # states
 UNKNOWN = -1
