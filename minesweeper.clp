@@ -5,7 +5,7 @@
 ; is-open -> terbuka
 ; is-safe -> safe cell oleh clips
 
-(defrule new-positions
+(defrule new-pos
     (x-pos $?xpos)
     (y-pos $?ypos)
 =>
@@ -53,4 +53,52 @@
   (is-2 ?x2 ?y1)
 =>
   (assert (is-bomb ?x3 ?y))
+)
+
+(defrule check-3x3-1-1
+  (new-x-pos $? ?1x ?x ?x1 $?)
+  (new-y-pos $? ?1y ?y ?y1 $?)
+  (is-1 ?x ?y)
+  (is-open ?1x ?1y)
+  (is-open ?1x ?y1)
+  (is-open ?x1 ?1y)
+  ; (is-open ?x1 ?y1)
+=>
+  (assert (is-bomb ?x1 ?y1))
+)
+
+(defrule check-3x3-1-2
+  (new-x-pos $? ?1x ?x ?x1 $?)
+  (new-y-pos $? ?1y ?y ?y1 $?)
+  (is-1 ?x ?y)
+  (is-open ?1x ?1y)
+  (is-open ?1x ?y1)
+  ; (is-open ?x1 ?1y)
+  (is-open ?x1 ?y1)
+=>
+  (assert (is-bomb ?x1 ?1y))
+)
+
+(defrule check-3x3-1-3
+  (new-x-pos $? ?1x ?x ?x1 $?)
+  (new-y-pos $? ?1y ?y ?y1 $?)
+  (is-1 ?x ?y)
+  (is-open ?1x ?1y)
+  ; (is-open ?1x ?y1)
+  (is-open ?x1 ?1y)
+  (is-open ?x1 ?y1)
+=>
+  (assert (is-bomb ?1x ?y1))
+)
+
+(defrule check-3x3-1-4
+  (new-x-pos $? ?1x ?x ?x1 $?)
+  (new-y-pos $? ?1y ?y ?y1 $?)
+  (is-1 ?x ?y)
+  ; (is-open ?1x ?1y)
+  (is-open ?1x ?y1)
+  (is-open ?x1 ?1y)
+  (is-open ?x1 ?y1)
+=>
+  (assert (is-bomb ?1x ?1y))
 )
