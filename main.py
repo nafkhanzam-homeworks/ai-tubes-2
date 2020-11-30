@@ -16,7 +16,11 @@ print("==== CURRENT ====")
 board.print()
 safe_cells = [(0, 0)]
 
-while len(safe_cells) > 0:
+step = 0
+max_steps = 2
+
+while not board.isEnd():
+    step += 1
     valid_cells = []
     for cell in safe_cells:
         (x, y) = cell
@@ -24,9 +28,6 @@ while len(safe_cells) > 0:
         if (res):
             print(f"Opening ({cell})")
             valid_cells.append(cell)
-    if (len(valid_cells) == 0):
-        print("Tidak ada safe-cell baru yang masih tertutup")
-        break
     (safe_cells, bomb_cells) = board.solve()
     board.print()
     print("Safe cells:")
@@ -35,3 +36,7 @@ while len(safe_cells) > 0:
     print("Bomb cells:")
     for cell in bomb_cells:
         print(cell)
+    if len(safe_cells) + len(bomb_cells) == 0:
+        board.finishRest()
+        board.print()
+        break

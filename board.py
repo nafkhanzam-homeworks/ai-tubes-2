@@ -15,7 +15,39 @@ class Board:
         self.init_board()
         self.env = Environment()
         self.env.load("minesweeper.clp")
-        utils.add3x3rules(self.env)
+        self.add3x3rules()
+        self.env.build("""
+            (defrule set_all_unknown_to_bomb
+                (pos-v ?x ?y ?v)
+                (test (> ?v 0))
+                (test (eq (count_unknown ?x ?y) (- ?v (count_bomb ?x ?y))))
+            =>
+                (assert (set_unknown_to_bomb (- ?x 1) (- ?y 1)))
+                (assert (set_unknown_to_bomb ?x (- ?y 1)))
+                (assert (set_unknown_to_bomb (+ ?x 1) (- ?y 1)))
+                (assert (set_unknown_to_bomb (- ?x 1) ?y))
+                (assert (set_unknown_to_bomb (+ ?x 1) ?y))
+                (assert (set_unknown_to_bomb (- ?x 1) (+ ?y 1)))
+                (assert (set_unknown_to_bomb ?x (+ ?y 1)))
+                (assert (set_unknown_to_bomb (+ ?x 1) (+ ?y 1)))
+            )
+        """)
+        self.env.build("""
+            (defrule set_all_unknown_to_safe
+                (pos-v ?x ?y ?v)
+                (test (> ?v 0))
+                (test (eq (count_bomb ?x ?y) ?v))
+            =>
+                (assert (set_unknown_to_safe (- ?x 1) (- ?y 1)))
+                (assert (set_unknown_to_safe ?x (- ?y 1)))
+                (assert (set_unknown_to_safe (+ ?x 1) (- ?y 1)))
+                (assert (set_unknown_to_safe (- ?x 1) ?y))
+                (assert (set_unknown_to_safe (+ ?x 1) ?y))
+                (assert (set_unknown_to_safe (- ?x 1) (+ ?y 1)))
+                (assert (set_unknown_to_safe ?x (+ ?y 1)))
+                (assert (set_unknown_to_safe (+ ?x 1) (+ ?y 1)))
+            )
+        """)
 
     def init_secret(self, bombs):
         self.secret = [[UNKNOWN for _ in range(self.n)] for _ in range(self.n)]
@@ -92,6 +124,7 @@ class Board:
                     env.assert_string(f"(is-closed {x} {y})")
                 else:
                     env.assert_string(f"(is-open {x} {y})")
+                    env.assert_string(f"(pos-v {x} {y} {v})")
                 env.assert_string(f"({fact_name} {x} {y})")
         env.run()
         safes = []
@@ -104,7 +137,50 @@ class Board:
             x, y = int(x_str), int(y_str)
             if (fact_name == "is-safe"):
                 safes.append((x, y))
-            elif (fact_name == "is-bomb"):
+            elif (fact_name == "new-bomb"):
                 bombs.append((x, y))
                 self.board[x][y] = FLAGGED
         return (safes, bombs)
+
+    def finishRest(self):
+        for x in range(self.n):
+            for y in range(self.n):
+                if (self.board[x][y] == UNKNOWN):
+                    self.board[x][y] = self.secret[x][y]
+
+    def gen_adj(self, x, y):
+        res = []
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                if (dx == 0 and dy == 0):
+                    continue
+                nx, ny = x+dx, y+dy
+                if (self.is_valid(nx, ny)):
+                    res.append((nx, ny))
+        return res
+
+    def count_unknown(self, x, y):
+        res = 0
+        for nx, ny in self.gen_adj(x, y):
+            if (self.board[nx][ny] == UNKNOWN):
+                res += 1
+        return res
+
+    def count_bomb(self, x, y):
+        res = 0
+        for nx, ny in self.gen_adj(x, y):
+            if (self.board[nx][ny] == FLAGGED):
+                res += 1
+        print(x, y, res)
+        return res
+
+    def add3x3rules(self):
+        self.env.define_function(self.count_unknown)
+        self.env.define_function(self.count_bomb)
+
+    def isEnd(self):
+        for x in range(self.n):
+            for y in range(self.n):
+                if (self.board[x][y] == UNKNOWN):
+                    return False
+        return True

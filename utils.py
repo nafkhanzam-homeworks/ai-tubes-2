@@ -62,9 +62,3 @@ def rule_safe():
             rules.append(rule)
     return rules
 
-
-def add3x3rules(env):
-    for rule in rule_bomb():
-        env.build(rule)
-    for rule in rule_safe():
-        env.build(rule)
