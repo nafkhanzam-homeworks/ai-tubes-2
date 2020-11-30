@@ -62,6 +62,11 @@ class Board:
     def solve_get_safe_cells(self):
         env = Environment()
         env.load("minesweeper.clp")
+        for i in range(self.n):
+            env.assert_string(f"(is-edge {i} -1)")
+            env.assert_string(f"(is-edge -1 {i})")
+            env.assert_string(f"(is-edge {self.n} {i})")
+            env.assert_string(f"(is-edge {i} {self.n})")
         for x in range(self.n):
             for y in range(self.n):
                 v = self.board[x][y]
@@ -71,6 +76,7 @@ class Board:
                 elif (v == FLAGGED):
                     fact_name = "is-bomb"
                 env.assert_string(f"({fact_name} {x} {y})")
+                env.assert_string(f"(is-open {x} {y})")
         env.run()
         founds = []
         for fact_str in env.facts():

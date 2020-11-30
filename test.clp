@@ -1,17 +1,15 @@
-; -3 bomb
-; -2 safe
-; -1 unknown
-; 0 <= x <= 4 element value
+; is-edge -> dinding
+; is-unknown -> belum terbuka
+; is-bomb -> flagged oleh clips
+; is-{0, 1, 2, 3, 4} -> terbuka
+; is-open -> terbuka
 
-
-(defrule initfacts
-  =>
-  (assert (is-0 1 1))
-  (assert (is-0 1 2))
+(defrule check-1-1
+  (
+    or (is-edge)
   )
+)
 
-(defrule print-bombs
-  (is-0 ?x ?y)
-  =>
-  (printout t "bomb on (" ?x ", " ?y ")" crlf)
-  )
+(defrule check-1
+
+)
