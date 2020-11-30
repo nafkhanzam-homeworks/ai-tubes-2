@@ -1,5 +1,4 @@
 from board import Board
-from clips import Environment, Symbol
 
 n = int(input())
 if (not (4 <= n <= 10)):
@@ -11,8 +10,13 @@ for _ in range(nBombs):
     x, y = map(int, input().replace(" ", "").split(","))
     bombList.append((x, y))
 board = Board(n, bombList)
-board.open(0, 0)
-board.print()
+safe_cells = [(0, 0)]
 
-# for fact in env.facts():
-#     print(fact)
+while len(safe_cells) > 0:
+    (x, y) = safe_cells[0]
+    board.open(x, y)
+    safe_cells = board.solve_get_safe_cells()
+    board.print()
+    print("Safe cells:")
+    for cell in safe_cells:
+        print(cell)
