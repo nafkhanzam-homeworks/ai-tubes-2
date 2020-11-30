@@ -110,20 +110,6 @@
         (new-x-pos $? ?y1 ?y $?)
       )
   )
-  (
-    or
-      (is-closed ?x ?y)
-      (is-edge ?x ?y)
-      (is-open ?x ?y)
-      (is-safe ?x ?y)
-  )
-  (
-    or
-      (is-closed ?x ?y1)
-      (is-edge ?x ?y1)
-      (is-open ?x ?y1)
-      (is-safe ?x ?y1)
-  )
   (is-closed ?x1 ?y)
   (is-closed ?x2 ?y)
   ?f <- (is-unknown ?x3 ?y)
