@@ -15,6 +15,7 @@ class Board:
         self.init_board()
         self.env = Environment()
         self.env.load("minesweeper.clp")
+        self.env.eval("(watch rules)")
         self.add3x3rules()
         self.env.build("""
             (defrule set_all_unknown_to_bomb
@@ -104,7 +105,7 @@ class Board:
             for y in range(self.n):
                 v = self.board[y][x]
                 print(
-                    f'{" K" if v == UNKNOWN else " B" if v == FLAGGED else str(v).rjust(2)} ', end="")
+                    f'{" K" if v == UNKNOWN else " F" if v == FLAGGED else str(v).rjust(2)} ', end="")
             print()
 
     def solve(self):
